@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Store Work Tracker</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body{
+  font-family:Arial;
+  background:#f4f6f9;
+  padding:20px;
+}
+.container{
+  max-width:700px;
+  margin:auto;
+  background:white;
+  padding:20px;
+  border-radius:10px;
+  box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+h2{text-align:center;}
+select,button{
+  width:100%;
+  padding:10px;
+  margin:8px 0;
+}
+button{
+  background:#007bff;
+  color:white;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  margin-top:15px;
+}
+th,td{
+  border:1px solid #ddd;
+  padding:8px;
+  text-align:center;
+}
+th{
+  background:#007bff;
+  color:white;
+}
+.done{color:green;font-weight:bold;}
+.pending{color:red;font-weight:bold;}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Store Work Update</h2>
+
+<label>Store Name:</label>
+<select id="store">
+<option>st1</option>
+<option>st2</option>
+<option>st4</option>
+<option>s4</option>
+</select>
+
+<label>1 Work:</label>
+<select id="work1">
+<option>Done</option>
+<option>Pending</option>
+</select>
+
+<label>2 Work:</label>
+<select id="work2">
+<option>Done</option>
+<option>Pending</option>
+</select>
+
+<label>3 Work:</label>
+<select id="work3">
+<option>Done</option>
+<option>Pending</option>
+</select>
+
+<button onclick="submitData()">Submit</button>
+
+<hr>
+
+<h2>Dashboard Panel</h2>
+
+<table>
+<thead>
+<tr>
+<th>Store</th>
+<th>Work 1</th>
+<th>Work 2</th>
+<th>Work 3</th>
+</tr>
+</thead>
+<tbody id="dashboard"></tbody>
+</table>
+
+<br>
+<button onclick="downloadPDF()">Download PDF</button>
+
+</div>
+
+<script>
+
+let storeData = JSON.parse(localStorage.getItem("storeData")) || {};
+
+function submitData(){
+  const store = document.getElementById("store").value;
+
+  storeData[store] = {
+    work1: document.getElementById("work1").value,
+    work2: document.getElementById("work2").value,
+    work3: document.getElementById("work3").value
+  };
+
+  localStorage.setItem("storeData", JSON.stringify(storeData));
+  displayData();
+  alert("Updated Successfully!");
+}
+
+function displayData(){
+  const dashboard = document.getElementById("dashboard");
+  dashboard.innerHTML="";
+
+  Object.keys(storeData).forEach(store=>{
+    const d = storeData[store];
+
+    dashboard.innerHTML += `
+      <tr>
+        <td>${store}</td>
+        <td class="${d.work1.toLowerCase()}">${d.work1}</td>
+        <td class="${d.work2.toLowerCase()}">${d.work2}</td>
+        <td class="${d.work3.toLowerCase()}">${d.work3}</td>
+      </tr>
+    `;
+  });
+}
+
+function downloadPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  let y = 10;
+
+  Object.keys(storeData).forEach(store=>{
+    const d = storeData[store];
+
+    doc.text(`Store: ${store}`,10,y); y+=7;
+    doc.text(`Work1: ${d.work1}`,10,y); y+=7;
+    doc.text(`Work2: ${d.work2}`,10,y); y+=7;
+    doc.text(`Work3: ${d.work3}`,10,y); y+=10;
+  });
+
+  doc.save("store_dashboard.pdf");
+}
+
+displayData();
+
+</script>
+
+</body>
+</html>
